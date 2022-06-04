@@ -1,10 +1,13 @@
-import { StatusBar, View } from 'react-native';
+import { StatusBar, View, Text } from 'react-native';
 import { styles } from './AppStyles';
 import StartPage from './components/StartPage/StartPage';
 import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BestPlayer } from './models/best-player';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import PlayingPage from './components/PlayingPage/PlayingPage';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -25,10 +28,17 @@ export default function App() {
     return null;
   }
 
+  const Stack = createNativeStackNavigator();
+
   return (
-    <View style={styles.container}>
-      <StartPage bestPlayer={bestPlayer} />
-      <StatusBar />
-    </View>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="StartPage">
+          <Stack.Screen name='StartPage' options={{ headerShown: false }}>
+            {(props) => <StartPage bestPlayer={bestPlayer} navigation={props.navigation} />}
+          </Stack.Screen>
+          <Stack.Screen name='PlayingPage' component={PlayingPage} options={{ headerShown: false }} />
+        </Stack.Navigator>
+        <StatusBar />
+      </NavigationContainer>
   );
 }

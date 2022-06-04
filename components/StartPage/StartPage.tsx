@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import { styles } from "./StartPageStyles";
 import { StartPageProps } from '../../models/start-page-props'
 
-export default function StartPage({ bestPlayer }: StartPageProps) {
+export default function StartPage({ bestPlayer, navigation }: StartPageProps) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -17,7 +17,7 @@ export default function StartPage({ bestPlayer }: StartPageProps) {
                 {!bestPlayer && <Text style={[styles.text, styles.winnerText]}>Here could be your name!</Text>}
             </View>
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.playButton} onPress={() => {}}>
+                <TouchableOpacity style={styles.playButton} onPress={() => {navigation.navigate('PlayingPage')}}>
                     <Text style={[styles.text, styles.buttonText]}>Play</Text>
                 </TouchableOpacity>
             </View>
