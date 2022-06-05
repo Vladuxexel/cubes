@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#333',
+        backgroundColor: '#3a3941',
         height: '100%',
         width: '100%',
         justifyContent: 'space-between'

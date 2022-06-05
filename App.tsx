@@ -1,5 +1,4 @@
-import { StatusBar, View, Text } from 'react-native';
-import { styles } from './AppStyles';
+import { StatusBar } from 'react-native';
 import StartPage from './components/StartPage/StartPage';
 import { useFonts } from 'expo-font';
 import { useEffect, useState } from 'react';
@@ -32,11 +31,13 @@ export default function App() {
 
   return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="StartPage">
-          <Stack.Screen name='StartPage' options={{ headerShown: false }}>
+        <Stack.Navigator initialRouteName="StartPage" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name='StartPage'>
             {(props) => <StartPage bestPlayer={bestPlayer} navigation={props.navigation} />}
           </Stack.Screen>
-          <Stack.Screen name='PlayingPage' component={PlayingPage} options={{ headerShown: false }} />
+          <Stack.Screen name='PlayingPage'>
+            {() => <PlayingPage bestScore={bestPlayer.score} />}
+          </Stack.Screen>
         </Stack.Navigator>
         <StatusBar />
       </NavigationContainer>
