@@ -1,5 +1,6 @@
 import { Text, View, Image, TouchableOpacity } from "react-native";
 import { PlayingPageProps } from "../../models/playing-page-props";
+import PlayingContainer from "../PlayingContainer/PlayingContainer";
 import { styles } from "./PlayingPageStyles";
 
 export default function PlayingPage({ bestScore }: PlayingPageProps) {
@@ -21,7 +22,7 @@ export default function PlayingPage({ bestScore }: PlayingPageProps) {
                 </TouchableOpacity>
             </View>
             <View style={styles.playingFieldContainer}>
-                <Text style={styles.text}>Palying field</Text>
+                <PlayingContainer />
             </View>
         </View>
     );

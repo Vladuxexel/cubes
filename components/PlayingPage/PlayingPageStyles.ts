@@ -5,8 +5,9 @@ export const styles = StyleSheet.create({
         backgroundColor: '#3a3941',
         height: '100%'
     },
-    playingField: {},
-    playingFieldContainer: {},
+    playingFieldContainer: {
+        height: '85%'
+    },
     controlsPanel: {
         height: '15%',
         flexDirection: 'row',
