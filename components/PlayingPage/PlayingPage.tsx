@@ -1,9 +1,14 @@
+import { useState } from "react";
 import { Text, View, Image, TouchableOpacity } from "react-native";
+import { useInterval } from "../../hooks/useInterval";
 import { PlayingPageProps } from "../../models/playing-page-props";
 import PlayingContainer from "../PlayingContainer/PlayingContainer";
 import { styles } from "./PlayingPageStyles";
 
 export default function PlayingPage({ bestScore }: PlayingPageProps) {
+    const [ticks, setTicks] = useState<number>(0);
+    useInterval(() => setTicks(ticks + 1), 1000);
+    
     return (
         <View style={styles.container}>
             <View style={styles.controlsPanel}>
@@ -22,7 +27,7 @@ export default function PlayingPage({ bestScore }: PlayingPageProps) {
                 </TouchableOpacity>
             </View>
             <View style={styles.playingFieldContainer}>
-                <PlayingContainer />
+                <PlayingContainer ticks={ticks} />
             </View>
         </View>
     );
