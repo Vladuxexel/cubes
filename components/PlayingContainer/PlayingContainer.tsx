@@ -46,9 +46,9 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
     useEffect(() => {
         const fieldCopy = copy(fieldState);
         
-        fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element, index));
+        fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element));
 
-        setFieldState(fieldCopy);
+        setFieldState(mergeCubes(fieldCopy));
     }, [ticks]);
 
     const getColumns = (pointing?: boolean) => {
@@ -94,7 +94,7 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
         }
     }
 
-    const moveColumn = (col: CubeModel[], index: number) => {
+    const moveColumn = (col: CubeModel[]) => {
         const activeCube = col.find((cube) => cube.isCurrent);
     
         if (!activeCube) {
@@ -133,6 +133,45 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
         initialElement.value = 2;
 
         return colCopy;
+    }
+
+    function mergeCubes(mappedField: CubeModel[][]): CubeModel[][] {
+        const fieldCopy = copy(mappedField);
+        const column = fieldCopy.find((column) => column.some((cube) => cube.isCurrent));
+        const activeCube = column?.find((cube) => cube.isCurrent);
+
+        if (!column || !activeCube) {
+            return fieldCopy;
+        }
+
+        const cubeIndex = column.indexOf(activeCube);
+
+        if (column.indexOf(activeCube) === column.length - 1 || !!column[column.indexOf(activeCube) + 1].level) {
+            const leftCol = fieldCopy[fieldCopy.indexOf(column) - 1];
+            const rightCol = fieldCopy[fieldCopy.indexOf(column) + 1];
+            let matches = 0;
+            
+            if (leftCol && leftCol[cubeIndex].level === activeCube.level ) {
+                matches++;
+                leftCol[cubeIndex] = getEmptyCube();
+            }
+
+            if (rightCol && rightCol[cubeIndex].level === activeCube.level ) {
+                matches++;
+                rightCol[cubeIndex] = getEmptyCube();
+            }
+
+            if (column[cubeIndex + 1]?.level && column[cubeIndex + 1].level === activeCube.level ) {
+                matches++;
+                column[cubeIndex + 1] = getEmptyCube();
+            }
+
+            if (matches) {
+                activeCube.level += matches;
+            }
+        }
+
+        return fieldCopy;
     }
 
     return (

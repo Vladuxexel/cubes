@@ -10,7 +10,7 @@ export default function Column({ width, order, cubesArr }: ColumnProps) {
     return (
         <View style={{ width, backgroundColor: getColor() }}>
             {cubesArr?.map((cubeVal: CubeModel, index) =>
-                <Cube side={width} value={cubeVal.value} isHidden={!cubeVal.level} key={index} />)}
+                <Cube side={width} level={cubeVal.level} isHidden={!cubeVal.level} key={index} />)}
         </View>
     );
 }

@@ -1,5 +1,5 @@
 export interface CubeProps {
     side: number;
-    value: number;
+    level: number;
     isHidden: boolean;
 }
