@@ -6,8 +6,9 @@ import Pointer from "../Pointer/Pointer";
 import { styles } from "./PlayingContainerStyles";
 import { Accelerometer } from 'expo-sensors';
 import { BORDER_WIDTH, COLS_NUMBER } from "../../common/constants";
-import { copy, getEmptyCube, getInitialField, moveColumn, round } from "../../common/functions";
+import { copy, getEmptyCube, getInitialField, round } from "../../common/functions";
 import { CubeModel } from "../../models/cube-model";
+import { Direction } from "../../models/direction.enum";
 
 export default function PlayingContainer({ ticks }: PlayingContainerProps) {
     const [width, setWidth] = useState<number>();
@@ -16,36 +17,36 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
     const [rotation, setRotation] = useState<number>();
     const [subscription, setSubscription] = useState<any>(null);
 
-    let _subscription;
-
-    const _unsubscribe = () => {
+    function unsubscribe() {
       subscription && subscription.remove();
       setSubscription(null);
     };
 
     useEffect(() => {
-      _subscribe();
-      return () => _unsubscribe();
+      subscribe();
+      return () => unsubscribe();
     }, []);
 
-    const _subscribe = () => {
-      _subscription = Accelerometer.addListener(accelerometerData => {
-        setRotation(round(accelerometerData.x));
-      });
+    function subscribe() {
+        setSubscription(
+            Accelerometer.addListener(
+                accelerometerData => setRotation(round(accelerometerData.x))
+            )
+        );
     };
     
     useEffect(() => {
         if (rotation === 1) {
-            moveTo('left');
+            moveTo(Direction.Left);
         } else if (rotation === -1) {
-            moveTo('right');
+            moveTo(Direction.Right);
         }
     }, [rotation]);
 
     useEffect(() => {
         const fieldCopy = copy(fieldState);
         
-        fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element));
+        fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element, index));
 
         setFieldState(fieldCopy);
     }, [ticks]);
@@ -64,29 +65,74 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
         return cols;
     }
 
-    function moveTo(direction: string) {
-        const column = fieldState.find((column) => column.some((cube) => cube.isCurrent));
+    function moveTo(direction: Direction): void {
+        const fieldCopy = copy(fieldState);
+        const column = fieldCopy.find((column) => column.some((cube) => cube.isCurrent));
+        const activeCube = column?.find((cube) => cube.isCurrent);
 
-        if (!column) {
+        if (!column || !activeCube) {
             return;
         }
 
-        const colIndex = fieldState.indexOf(column);
-        const fieldCopy = copy(fieldState);
+        const colIndex = fieldCopy.indexOf(column);
+        const cubeIndex = column.indexOf(activeCube);
 
-        if (direction === 'left') {
+        if (direction === Direction.Left) {
             if (colIndex > 0) {
-                fieldCopy[colIndex - 1] = fieldCopy[colIndex].slice();
-                fieldCopy[colIndex] = Array(6).fill(getEmptyCube()); 
+                fieldCopy[colIndex - 1][cubeIndex] = copy(activeCube);
+                fieldCopy[colIndex][cubeIndex] = getEmptyCube();
+
                 setFieldState(fieldCopy);
             }
-        } else if (direction === 'right') {
+        } else if (direction === Direction.Right) {
             if (colIndex < 4) {
-                fieldCopy[colIndex + 1] = fieldCopy[colIndex].slice();
-                fieldCopy[colIndex] = Array(6).fill(getEmptyCube());
+                fieldCopy[colIndex + 1][cubeIndex] = copy(activeCube);
+                fieldCopy[colIndex][cubeIndex] = getEmptyCube();
+
                 setFieldState(fieldCopy);
             }
         }
+    }
+
+    const moveColumn = (col: CubeModel[], index: number) => {
+        const activeCube = col.find((cube) => cube.isCurrent);
+    
+        if (!activeCube) {
+            return col;
+        }
+
+        if (activeCube && (col.indexOf(activeCube) === col.length - 1 || !!col[col.indexOf(activeCube) + 1].level)) {
+            activeCube.isCurrent = false;
+            
+            return setNewCube(col);
+        }
+    
+        const mergedCubesNumber = col.filter((cube) => cube.level && !cube.isCurrent).length;
+
+        if (mergedCubesNumber && activeCube) {
+            const tempWithoutMerged = col.slice(0, col.length - mergedCubesNumber);
+            const temp = tempWithoutMerged.slice(0, tempWithoutMerged.length - 1);
+            temp.unshift(tempWithoutMerged[tempWithoutMerged.length - 1]);
+            temp.push(...col.slice(tempWithoutMerged.length));
+
+            return temp;
+        }
+
+        const temp = col.slice(0, col.length - 1);
+        temp.unshift(col[col.length - 1]);
+    
+        return temp;
+    }
+
+    function setNewCube(col: CubeModel[]): CubeModel[] {
+        const colCopy = copy(col);
+        const initialElement = colCopy[0];
+
+        initialElement.isCurrent = true;
+        initialElement.level = 1;
+        initialElement.value = 2;
+
+        return colCopy;
     }
 
     return (

@@ -21,7 +21,7 @@ const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 const getInitialField = () => {
     const fieldsArr = Array.from(Array(COLS_NUMBER), ()=> copy(Array<CubeModel>(CELS_NUMBER).fill(getEmptyCube())));
-    const initialElement = fieldsArr[2][5];
+    const initialElement = fieldsArr[2][0];
     initialElement.isCurrent = true;
     initialElement.level = 1;
     initialElement.value = 2;
@@ -29,11 +29,5 @@ const getInitialField = () => {
     return fieldsArr;
 }
 
-const moveColumn = (col: CubeModel[]) => {
-    const temp = col.slice(0, col.length - 1);
-    temp.unshift(col[col.length - 1]);
 
-    return temp;
-}
-
-export { round, getEmptyCube, copy, getInitialField, moveColumn };
+export { round, getEmptyCube, copy, getInitialField };
