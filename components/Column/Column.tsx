@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 import { ColumnProps } from "../../models/column-props";
+import { CubeModel } from "../../models/cube-model";
 import Cube from "../Cube/Cube";
 import { styles } from "./ColumnStyles";
 
@@ -8,7 +9,8 @@ export default function Column({ width, order, cubesArr }: ColumnProps) {
 
     return (
         <View style={{ width, backgroundColor: getColor() }}>
-            {cubesArr?.map((cubeVal: number, index) => <Cube side={width} isHidden={!cubeVal} key={index} />)}
+            {cubesArr?.map((cubeVal: CubeModel, index) =>
+                <Cube side={width} value={cubeVal.value} isHidden={!cubeVal.level} key={index} />)}
         </View>
     );
 }
