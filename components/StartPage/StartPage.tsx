@@ -13,8 +13,7 @@ export default function StartPage({ bestPlayer, navigation }: StartPageProps) {
             <View style={styles.scoreContainer}>
                 <Image style={styles.crownImage} source={require('../../assets/crown.png')} />
                 <Text style={[styles.text, styles.scoreText]}>Best score</Text>
-                {bestPlayer && <Text style={[styles.text, styles.winnerText]}>{bestPlayer?.name} - {bestPlayer?.score} points</Text>}
-                {!bestPlayer && <Text style={[styles.text, styles.winnerText]}>Here could be your name!</Text>}
+                {bestPlayer && <Text style={[styles.text, styles.winnerText]}>{bestPlayer?.score} points</Text>}
             </View>
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.playButton} onPress={() => {navigation.navigate('PlayingPage')}}>

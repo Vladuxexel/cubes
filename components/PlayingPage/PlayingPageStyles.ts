@@ -53,5 +53,13 @@ export const styles = StyleSheet.create({
         width: 32,
         height: 30,
         marginRight: 10
+    },
+    overlay: {
+        backgroundColor: 'black',
+        width: '100%',
+        height: '100%',
+        opacity: 0.7,
+        position: 'absolute',
+        zIndex: 1
     }
 });

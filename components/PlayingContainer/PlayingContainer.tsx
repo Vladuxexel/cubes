@@ -6,16 +6,17 @@ import Pointer from "../Pointer/Pointer";
 import { styles } from "./PlayingContainerStyles";
 import { Accelerometer } from 'expo-sensors';
 import { BORDER_WIDTH, COLS_NUMBER } from "../../common/constants";
-import { copy, getEmptyCube, getInitialField, round } from "../../common/functions";
+import { copy, getEmptyCube, getInitialField, getRandomCubeLevel, round } from "../../common/functions";
 import { CubeModel } from "../../models/cube-model";
 import { Direction } from "../../models/direction.enum";
 
-export default function PlayingContainer({ ticks }: PlayingContainerProps) {
+export default function PlayingContainer({ ticks, reset, pause, onGameOver }: PlayingContainerProps) {
     const [width, setWidth] = useState<number>();
     const [height, setHeight] = useState<number>();
     const [fieldState, setFieldState] = useState<CubeModel[][]>(() => getInitialField());
     const [rotation, setRotation] = useState<number>();
     const [subscription, setSubscription] = useState<any>(null);
+    const [gameStopped, setGameStopped] = useState<boolean>(false);
 
     function unsubscribe() {
       subscription && subscription.remove();
@@ -36,19 +37,36 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
     };
     
     useEffect(() => {
-        if (rotation === 1) {
-            moveTo(Direction.Left);
-        } else if (rotation === -1) {
-            moveTo(Direction.Right);
+        if (!gameStopped) {
+            if (rotation === 1) {
+                moveTo(Direction.Left);
+            } else if (rotation === -1) {
+                moveTo(Direction.Right);
+            }
         }
     }, [rotation]);
 
-    useEffect(() => {
-        const fieldCopy = copy(fieldState);
-        
-        fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element));
+    useEffect(() => { 
+        if (ticks > 3) {
+            setFieldState(getInitialField())
+            setGameStopped(false);
+        }
+    }, [reset]);
 
-        setFieldState(mergeCubes(fieldCopy));
+    useEffect(() => { 
+        if (ticks > 3) {
+            setGameStopped(pause);
+        }
+    }, [pause]);
+
+    useEffect(() => {
+        if (!gameStopped) {
+            const fieldCopy = copy(fieldState);
+            
+            fieldCopy.forEach((element, index) => fieldCopy[index] = moveColumn(element));
+
+            setFieldState(mergeCubes(fieldCopy));
+        }
     }, [ticks]);
 
     const getColumns = (pointing?: boolean) => {
@@ -78,14 +96,14 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
         const cubeIndex = column.indexOf(activeCube);
 
         if (direction === Direction.Left) {
-            if (colIndex > 0) {
+            if (colIndex > 0 && !fieldCopy[colIndex - 1][cubeIndex].level) {
                 fieldCopy[colIndex - 1][cubeIndex] = copy(activeCube);
                 fieldCopy[colIndex][cubeIndex] = getEmptyCube();
 
                 setFieldState(fieldCopy);
             }
         } else if (direction === Direction.Right) {
-            if (colIndex < 4) {
+            if (colIndex < 4 && !fieldCopy[colIndex + 1][cubeIndex].level) {
                 fieldCopy[colIndex + 1][cubeIndex] = copy(activeCube);
                 fieldCopy[colIndex][cubeIndex] = getEmptyCube();
 
@@ -129,8 +147,12 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
         const initialElement = colCopy[0];
 
         initialElement.isCurrent = true;
-        initialElement.level = 1;
-        initialElement.value = 2;
+        initialElement.level = getRandomCubeLevel();
+
+        if (colCopy[1].level > 0 && colCopy[1].level !== initialElement.level) {
+            setGameStopped(true);
+            onGameOver();
+        }
 
         return colCopy;
     }
@@ -175,7 +197,7 @@ export default function PlayingContainer({ ticks }: PlayingContainerProps) {
     }
 
     return (
-        <View>
+        <View style={{ height: '100%' }}>
             <View style={[styles.pointersContainer, { height: Number(height) / 5 || 0  }]}>
                 { width && getColumns(true) }
             </View>
